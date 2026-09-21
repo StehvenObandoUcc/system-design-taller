@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food AI Assistant — Design System & Vistas para Figma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Ionicons para máxima fidelidad con la app real de Expo -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <style>
+    :root {
+      /* ─── Warm Material Editorial Tokens ─── */
+      --bg-app: #FFF9F2;
+      --surface: #FFFFFF;
+      --surface-variant: #F8EDE2;
+      --surface-subtle: #FBF4ED;
+      
+      --primary: #B94E35;
+      --primary-dark: #863626;
+      --primary-container: #FBE9E2;
+      
+      --secondary: #E58A45;
+      --secondary-dark: #B26223;
+      --secondary-container: #FFF1E3;
+      
+      --text-primary: #2B211D;
+      --text-secondary: #66534A;
+      --text-muted: #96857C;
+      --text-inverse: #FFFFFF;
+      
+      --border: #EBDDD2;
+      --border-strong: #D6C4B6;
+      
+      /* Estados Funcionales de Caducidad */
+      --fresh-bg: #EAF4ED;
+      --fresh-border: #C2DFCB;
+      --fresh-text: #28613C;
+      
+      --expiring-bg: #FFF2D7;
+      --expiring-border: #F8DC9E;
+      --expiring-text: #8A5A00;
+      
+      --expired-bg: #FBE5E3;
+      --expired-border: #F4BCB8;
+      --expired-text: #A93632;
+      
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+      --radius-pill: 999px;
+      
+      --shadow-sm: 0 1px 3px rgba(43, 33, 29, 0.05);
+      --shadow-md: 0 4px 12px rgba(43, 33, 29, 0.08);
+      --shadow-lg: 0 8px 24px rgba(43, 33, 29, 0.12);
+      --shadow-fab: 0 4px 14px rgba(185, 78, 53, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #1E1B18;
+      color: #F8EDE2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Barra de Control Superior para Figma ─── */
+    .top-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(30, 27, 24, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(235, 221, 210, 0.15);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-tag {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.5px;
+    }
+
+    .toolbar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFF9F2;
+    }
+
+    .toolbar-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mode-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF9F2;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn:hover, .mode-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(185, 78, 53, 0.4);
+    }
+
+    /* ─── Contenedor Principal de Modos ─── */
+    .main-workspace {
+      flex: 1;
+      padding: 32px 24px;
+      overflow-x: auto;
+    }
+
+    /* Modo Canvas Grid (Para Figma) */
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+      gap: 40px;
+      justify-content: center;
+      max-width: 1720px;
+      margin: 0 auto;
+    }
+
+    /* Modo Dispositivo Interactivo */
+    .simulator-container {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0 60px;
+    }
+
+    .simulator-container.active {
+      display: flex;
+    }
+
+    /* ─── Armazón del Móvil (Figma Frame / Screen Frame) ─── */
+    .screen-artboard {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .artboard-header {
+      width: 390px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0 4px;
+    }
+
+    .artboard-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #F8EDE2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .artboard-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .mobile-frame {
+      width: 390px;
+      height: 844px;
+      background-color: var(--bg-app);
+      border-radius: 44px;
+      border: 8px solid #2B211D;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(235, 221, 210, 0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-primary);
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      z-index: 50;
+      user-select: none;
+    }
+
+    .notch-island {
+      width: 120px;
+      height: 28px;
+      background: #2B211D;
+      border-radius: 14px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+    }
+
+    /* Contenido scrolleable de cada pantalla */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 100px;
+      scrollbar-width: none;
+    }
+    .screen-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* ─── Componentes UI Reutilizables ─── */
+    
+    /* Top Header */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-top: 6px;
+    }
+
+    .app-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .app-header p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-variant);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    /* Buscador (SearchInput) */
+    .search-container {
+      height: 50px;
+      background: var(--surface-variant);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .search-container ion-icon {
+      font-size: 20px;
+      color: var(--text-secondary);
+    }
+
+    .search-input {
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      width: 100%;
+    }
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Chips de Categoría */
+    .chips-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin: 0 -20px 14px;
+      padding-left: 20px;
+      padding-right: 20px;
+      scrollbar-width: none;
+    }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+
+    .chip {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      width: fit-content;
+    }
+
+    .badge-fresh {
+      background: var(--fresh-bg);
+      border-color: var(--fresh-border);
+      color: var(--fresh-text);
+    }
+
+    .badge-expiring {
+      background: var(--expiring-bg);
+      border-color: var(--expiring-border);
+      color: var(--expiring-text);
+    }
+
+    .badge-expired {
+      background: var(--expired-bg);
+      border-color: var(--expired-border);
+      color: var(--expired-text);
+    }
+
+    /* Tarjetas de Ingredientes */
+    .ingredient-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ingredient-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .ingredient-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ingredient-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ingredient-qty {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Tarjetas de Receta */
+    .recipe-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .recipe-media {
+      height: 130px;
+      background: linear-gradient(135deg, #B94E35, #E58A45);
+      position: relative;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .recipe-match-pill {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .recipe-fav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 16px;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+
+    .recipe-body {
+      padding: 14px;
+    }
+
+    .recipe-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .recipe-meta-row {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .recipe-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ingredients-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Botones */
+    .btn-primary {
+      height: 50px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(185, 78, 53, 0.25);
+    }
+
+    .btn-secondary {
+      height: 48px;
+      background: var(--primary-container);
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    /* Floating Bottom Navigation */
+    .bottom-nav {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      height: 64px;
+      background: #FFFFFF;
+      border: 1px solid #F0E4D8;
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      padding: 0 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 600;
+      gap: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      min-width: 46px;
+    }
+
+    .nav-item ion-icon {
+      font-size: 20px;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .nav-active-pill {
+      background: var(--primary-container);
+      padding: 4px 14px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+
+    .nav-fab {
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+      box-shadow: var(--shadow-fab);
+      cursor: pointer;
+    }
+
+    .nav-badge {
+      position: absolute;
+      top: -2px;
+      right: -4px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    /* KPI Grid en Dashboard */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-number {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Banner Escaneo Rápido */
+    .quick-scan-banner {
+      background: linear-gradient(135deg, #B94E35, #863626);
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .scan-banner-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .scan-banner-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.3;
+    }
+
+    /* Checklist de Cocina */
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .step-number {
+      width: 26px;
+      height: 26px;
+      border-radius: var(--radius-pill);
+      background: var(--primary-container);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .step-item.completed {
+      opacity: 0.55;
+      background: var(--surface-variant);
+    }
+    .step-item.completed .step-text {
+      text-decoration: line-through;
+    }
+
+    /* Modal Chef IA Overlay */
+    .modal-preview-box {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: #D6C4B6;
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Herramientas para Figma Export -->
+  <header class="top-toolbar">
+    <div class="toolbar-left">
+      <span class="brand-tag">FIGMA READY</span>
+      <div>
+        <div class="toolbar-title">Food AI Assistant — Master Screens Showcase</div>
+        <div class="toolbar-subtitle">Diseño de Interfaces de Software • Estudiante: Stehven Obando • UCC</div>
+      </div>
+    </div>
+    
+    <div class="toolbar-actions">
+      <button class="mode-btn active" id="btnGridMode" onclick="setMode('grid')">
+        <ion-icon name="grid-outline"></ion-icon> Lienzo Figma (8 Vistas)
+      </button>
+      <button class="mode-btn" id="btnSimMode" onclick="setMode('simulator')">
+        <ion-icon name="phone-portrait-outline"></ion-icon> Simulador Interactivo
+      </button>
+    </div>
+  </header>
+
+  <!-- Espacio de Trabajo Principal -->
+  <main class="main-workspace">
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- MODO 1: FIGMA CANVAS GRID (8 Vistas Completas de 390x844px)           -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="canvas-grid" id="figmaCanvasGrid">
+
+      <!-- PANTALLA 1: LOGIN -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="log-in-outline"></ion-icon> 01. Login</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content" style="display:flex; flex-direction:column; justify-content:center; padding-bottom:30px;">
+            <div style="text-align:center; margin-bottom:32px;">
+              <div style="width:72px; height:72px; background:var(--primary-container); border-radius:36px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:16px;">
+                <ion-icon name="restaurant" style="font-size:36px; color:var(--primary);"></ion-icon>
+              </div>
+              <h1 style="font-size:24px; font-weight:800; color:var(--text-primary);">Food AI Assistant</h1>
+              <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Tu despensa inteligente y recetas con IA</p>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <label style="font-size:12px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:6px;">Correo electrónico</label>
+              <div class="search-container" style="margin-bottom:0; background:#fff;">
+                <ion-icon name="mail-outline"></ion-icon>
+                <input class="search-input" type="email" value="stehven.obando@campusucc.edu.co">
+              </div>
+            </div>
+
+            <div style="margin-bottom:24px;">
+              <label style="font-size:12px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:6px;">Contraseña</label>
+              <div class="search-container" style="margin-bottom:0; background:#fff;">
+                <ion-icon name="lock-closed-outline"></ion-icon>
+                <input class="search-input" type="password" value="••••••••••••">
+                <ion-icon name="eye-outline" style="cursor:pointer;"></ion-icon>
+              </div>
+            </div>
+
+            <button class="btn-primary" style="margin-bottom:14px;">Iniciar Sesión</button>
+            <button class="btn-secondary">Continuar con Google</button>
+
+            <div style="text-align:center; margin-top:24px;">
+              <a href="#" style="color:var(--primary); font-size:13px; font-weight:700; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 2: DASHBOARD / INICIO -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="home-outline"></ion-icon> 02. Inicio (Dashboard)</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content">
+            <div class="app-header">
+              <div>
+                <h1>¡Hola, Stehven! 👋</h1>
+                <p>Lunes, 21 de Septiembre</p>
+              </div>
+              <div class="icon-btn"><ion-icon name="notifications-outline"></ion-icon></div>
+            </div>
+
+            <!-- Banner Escaneo Rápido -->
+            <div class="quick-scan-banner">
+              <div>
+                <div class="scan-banner-title">Escanear Alimentos con IA</div>
+                <div class="scan-banner-desc">Toma una foto a tus compras y registra fechas de caducidad al instante.</div>
+              </div>
+              <div style="width:44px; height:44px; border-radius:22px; background:#fff; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:22px; flex-shrink:0;">
+                <ion-icon name="camera"></ion-icon>
+              </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-number">18</div>
+                <div class="kpi-label">Alimentos en Despensa</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-number" style="color:var(--expiring-text);">3</div>
+                <div class="kpi-label">Próximos a Vencer</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-number" style="color:var(--fresh-text);">5</div>
+                <div class="kpi-label">Recetas Listas (100%)</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-number" style="color:var(--primary);">4</div>
+                <div class="kpi-label">En Lista de Compras</div>
+              </div>
+            </div>
+
+            <!-- Alimentos Urgentes -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h2 style="font-size:16px; font-weight:700;">Atención Urgente</h2>
+              <a href="#" style="font-size:12px; font-weight:700; color:var(--primary); text-decoration:none;">Ver todos</a>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#FDF0EA; color:#C85A32;"><ion-icon name="nutrition-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Aguacate Hass</div>
+                <div class="ingredient-qty">2 unidades • Fruta</div>
+              </div>
+              <span class="badge badge-expiring"><ion-icon name="time-outline"></ion-icon> Vence hoy</span>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#EBF2F7; color:#2A5A78;"><ion-icon name="water-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Leche Entera</div>
+                <div class="ingredient-qty">1 Litro • Lácteo</div>
+              </div>
+              <span class="badge badge-expiring"><ion-icon name="time-outline"></ion-icon> Vence en 2d</span>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <nav class="bottom-nav">
+            <div class="nav-item active">
+              <div class="nav-active-pill"><ion-icon name="home"></ion-icon></div>
+              <span>Inicio</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="basket-outline"></ion-icon>
+              <span>Despensa</span>
+            </div>
+            <div class="nav-fab"><ion-icon name="camera"></ion-icon></div>
+            <div class="nav-item">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <span>Recetas</span>
+            </div>
+            <div class="nav-item" style="position:relative;">
+              <ion-icon name="cart-outline"></ion-icon>
+              <span class="nav-badge">4</span>
+              <span>Compras</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- PANTALLA 3: MI DESPENSA -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="basket-outline"></ion-icon> 03. Mi Despensa</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content">
+            <div class="app-header">
+              <div>
+                <h1>Mi Despensa</h1>
+                <p>18 alimentos registrados</p>
+              </div>
+              <div class="icon-btn"><ion-icon name="add"></ion-icon></div>
+            </div>
+
+            <!-- Buscador -->
+            <div class="search-container">
+              <ion-icon name="search-outline"></ion-icon>
+              <input class="search-input" placeholder="Buscar alimentos...">
+            </div>
+
+            <!-- Chips de Categoría -->
+            <div class="chips-scroll">
+              <div class="chip active">Todos</div>
+              <div class="chip"><ion-icon name="time-outline"></ion-icon> Por vencer (3)</div>
+              <div class="chip">🥬 Verduras</div>
+              <div class="chip">🍎 Frutas</div>
+              <div class="chip">🥩 Proteínas</div>
+              <div class="chip">🥛 Lácteos</div>
+            </div>
+
+            <!-- Lista de Ingredientes -->
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#FDF0EA; color:#C85A32;"><ion-icon name="nutrition-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Aguacate Hass</div>
+                <div class="ingredient-qty">2 unidades • Fruta</div>
+              </div>
+              <span class="badge badge-expiring"><ion-icon name="time-outline"></ion-icon> Vence hoy</span>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#EBF2F7; color:#2A5A78;"><ion-icon name="water-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Leche Entera</div>
+                <div class="ingredient-qty">1 Litro • Lácteo</div>
+              </div>
+              <span class="badge badge-expiring"><ion-icon name="time-outline"></ion-icon> Vence en 2d</span>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#FBE5E3; color:#A93632;"><ion-icon name="restaurant-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Pechuga de Pollo</div>
+                <div class="ingredient-qty">500 gramos • Proteína</div>
+              </div>
+              <span class="badge badge-expiring"><ion-icon name="time-outline"></ion-icon> Vence en 3d</span>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#EAF4ED; color:#28613C;"><ion-icon name="leaf-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Tomate Chonto</div>
+                <div class="ingredient-qty">4 unidades • Verdura</div>
+              </div>
+              <span class="badge badge-fresh"><ion-icon name="checkmark-circle-outline"></ion-icon> 5d restantes</span>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#FEF6E9; color:#94580C;"><ion-icon name="grid-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Arroz Integral</div>
+                <div class="ingredient-qty">1 Kilogramo • Granos</div>
+              </div>
+              <span class="badge badge-fresh"><ion-icon name="checkmark-circle-outline"></ion-icon> 45d restantes</span>
+            </div>
+
+            <div class="ingredient-card">
+              <div class="ingredient-avatar" style="background:#EBF2F7; color:#2A5A78;"><ion-icon name="water-outline"></ion-icon></div>
+              <div class="ingredient-info">
+                <div class="ingredient-name">Queso Parmesano</div>
+                <div class="ingredient-qty">200 gramos • Lácteo</div>
+              </div>
+              <span class="badge badge-expired"><ion-icon name="alert-circle-outline"></ion-icon> Vencido 1d</span>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <nav class="bottom-nav">
+            <div class="nav-item">
+              <ion-icon name="home-outline"></ion-icon>
+              <span>Inicio</span>
+            </div>
+            <div class="nav-item active">
+              <div class="nav-active-pill"><ion-icon name="basket"></ion-icon></div>
+              <span>Despensa</span>
+            </div>
+            <div class="nav-fab"><ion-icon name="camera"></ion-icon></div>
+            <div class="nav-item">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <span>Recetas</span>
+            </div>
+            <div class="nav-item" style="position:relative;">
+              <ion-icon name="cart-outline"></ion-icon>
+              <span class="nav-badge">4</span>
+              <span>Compras</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- PANTALLA 4: RECETAS SUGERIDAS (CON CHEF IA) -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="restaurant-outline"></ion-icon> 04. Recetas (Chef IA)</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content">
+            <div class="app-header">
+              <div>
+                <h1>Recetas Inteligentes</h1>
+                <p>Basadas en lo que tienes hoy</p>
+              </div>
+              <button style="background:var(--primary); color:#fff; border:none; padding:7px 14px; border-radius:var(--radius-pill); font-size:12px; font-weight:700; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <ion-icon name="sparkles"></ion-icon> Chef IA
+              </button>
+            </div>
+
+            <!-- Buscador -->
+            <div class="search-container">
+              <ion-icon name="search-outline"></ion-icon>
+              <input class="search-input" placeholder="Buscar recetas o platos...">
+            </div>
+
+            <!-- Tabs de Filtrado -->
+            <div class="chips-scroll">
+              <div class="chip active">Todas</div>
+              <div class="chip">✨ Listas (100%)</div>
+              <div class="chip">⚡ Rápidas (≤25m)</div>
+              <div class="chip">❤️ Favoritas</div>
+            </div>
+
+            <!-- Receta 1 (100% Match) -->
+            <div class="recipe-card">
+              <div class="recipe-media">
+                <span class="recipe-match-pill"><ion-icon name="sparkles"></ion-icon> 100% Coincidencia</span>
+                <div class="recipe-fav-btn"><ion-icon name="heart"></ion-icon></div>
+              </div>
+              <div class="recipe-body">
+                <h3 class="recipe-title">Bowl de Pollo y Quinoa con Aguacate</h3>
+                <div class="recipe-meta-row">
+                  <span class="recipe-meta-item"><ion-icon name="time-outline"></ion-icon> 20 min</span>
+                  <span class="recipe-meta-item"><ion-icon name="speedometer-outline"></ion-icon> Fácil</span>
+                  <span class="recipe-meta-item"><ion-icon name="people-outline"></ion-icon> 2 porciones</span>
+                </div>
+                <div class="ingredients-status-bar" style="color:var(--fresh-text);">
+                  <ion-icon name="checkmark-circle"></ion-icon>
+                  <span>Tienes todos los ingredientes (4/4)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Receta 2 (75% Match) -->
+            <div class="recipe-card">
+              <div class="recipe-media" style="background:linear-gradient(135deg, #2A5A78, #28613C);">
+                <span class="recipe-match-pill" style="color:#8A5A00;"><ion-icon name="sparkles"></ion-icon> 75% Coincidencia</span>
+                <div class="recipe-fav-btn"><ion-icon name="heart-outline"></ion-icon></div>
+              </div>
+              <div class="recipe-body">
+                <h3 class="recipe-title">Pasta Pomodoro con Queso y Albahaca</h3>
+                <div class="recipe-meta-row">
+                  <span class="recipe-meta-item"><ion-icon name="time-outline"></ion-icon> 25 min</span>
+                  <span class="recipe-meta-item"><ion-icon name="speedometer-outline"></ion-icon> Media</span>
+                  <span class="recipe-meta-item"><ion-icon name="people-outline"></ion-icon> 3 porciones</span>
+                </div>
+                <div class="ingredients-status-bar" style="color:var(--secondary-dark);">
+                  <ion-icon name="alert-circle-outline"></ion-icon>
+                  <span>3 disponibles • Falta: Albahaca fresca</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <nav class="bottom-nav">
+            <div class="nav-item">
+              <ion-icon name="home-outline"></ion-icon>
+              <span>Inicio</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="basket-outline"></ion-icon>
+              <span>Despensa</span>
+            </div>
+            <div class="nav-fab"><ion-icon name="camera"></ion-icon></div>
+            <div class="nav-item active">
+              <div class="nav-active-pill"><ion-icon name="restaurant"></ion-icon></div>
+              <span>Recetas</span>
+            </div>
+            <div class="nav-item" style="position:relative;">
+              <ion-icon name="cart-outline"></ion-icon>
+              <span class="nav-badge">4</span>
+              <span>Compras</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- PANTALLA 5: DETALLE DE RECETA / MODO COCINA -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="book-outline"></ion-icon> 05. Detalle de Receta</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content" style="padding-bottom:30px;">
+            <!-- Hero Banner -->
+            <div style="height:140px; background:linear-gradient(135deg, #B94E35, #E58A45); border-radius:var(--radius-lg); padding:16px; color:#fff; display:flex; flex-direction:column; justify-content:space-between; margin-bottom:18px;">
+              <div style="display:flex; justify-content:space-between;">
+                <div class="recipe-match-pill"><ion-icon name="sparkles"></ion-icon> 100% Coincidencia</div>
+                <div style="width:32px; height:32px; border-radius:16px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; color:#fff;"><ion-icon name="heart"></ion-icon></div>
+              </div>
+              <div style="font-size:12px; font-weight:600; opacity:0.9;">¡Todos los ingredientes listos en tu despensa!</div>
+            </div>
+
+            <h1 style="font-size:20px; font-weight:800; color:var(--text-primary); margin-bottom:8px;">Bowl de Pollo y Quinoa con Aguacate</h1>
+            <p style="font-size:13px; color:var(--text-secondary); line-height:1.4; margin-bottom:14px;">Plato nutritivo que aprovecha el aguacate y la pechuga de pollo antes de su fecha de vencimiento.</p>
+
+            <!-- Metadatos -->
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+              <div style="background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:var(--radius-pill); font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px;">
+                <ion-icon name="time-outline" style="color:var(--primary);"></ion-icon> 20 min
+              </div>
+              <div style="background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:var(--radius-pill); font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px;">
+                <ion-icon name="people-outline" style="color:var(--primary);"></ion-icon> 2 porciones
+              </div>
+              <div style="background:var(--fresh-bg); border:1px solid var(--fresh-border); color:var(--fresh-text); padding:6px 12px; border-radius:var(--radius-pill); font-size:12px; font-weight:700;">
+                Fácil
+              </div>
+            </div>
+
+            <!-- Sección Ingredientes -->
+            <h2 style="font-size:16px; font-weight:800; margin-bottom:10px;">Ingredientes Disponibles (4)</h2>
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:20px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
+                <span>• Pechuga de pollo</span>
+                <span style="font-weight:700; color:var(--fresh-text);">500 g (En despensa)</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
+                <span>• Aguacate Hass</span>
+                <span style="font-weight:700; color:var(--fresh-text);">2 uds (En despensa)</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
+                <span>• Quinoa cocida</span>
+                <span style="font-weight:700; color:var(--fresh-text);">150 g (En despensa)</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; font-size:13px;">
+                <span>• Aceite de oliva</span>
+                <span style="font-weight:700; color:var(--fresh-text);">1 cda (En despensa)</span>
+              </div>
+            </div>
+
+            <!-- Pasos de Preparación -->
+            <h2 style="font-size:16px; font-weight:800; margin-bottom:10px;">Pasos de Preparación (Modo Cocina)</h2>
+            <div class="step-item completed">
+              <div class="step-number"><ion-icon name="checkmark"></ion-icon></div>
+              <div class="step-text">Cortar la pechuga de pollo en tiras y salpimentar al gusto.</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <div class="step-text">Calentar el sartén con aceite de oliva y dorar el pollo durante 8 minutos.</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-text">Servir la quinoa tibia en el fondo del bowl.</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-text">Cortar el aguacate en láminas y armar el bowl.</div>
+            </div>
+
+            <button class="btn-primary" style="margin-top:16px;">
+              <ion-icon name="checkmark-done-circle-outline" style="font-size:20px;"></ion-icon> Finalizar y Descontar Ingredientes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 6: ESCANEAR ALIMENTOS (CÁMARA) -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="camera-outline"></ion-icon> 06. Escaneo con Cámara</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame" style="background:#0F0E0D; color:#fff;">
+          <div class="status-bar" style="color:#fff;">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:20px 24px 40px; position:relative;">
+            <!-- Controles Superiores -->
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="width:40px; height:40px; border-radius:20px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:20px;">
+                <ion-icon name="close"></ion-icon>
+              </div>
+              <div style="background:rgba(0,0,0,0.6); padding:6px 14px; border-radius:var(--radius-pill); font-size:12px; font-weight:700; border:1px solid rgba(255,255,255,0.2);">
+                IA Vision Activa
+              </div>
+              <div style="width:40px; height:40px; border-radius:20px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:20px;">
+                <ion-icon name="flash-outline"></ion-icon>
+              </div>
+            </div>
+
+            <!-- Marco Guía de Escaneo -->
+            <div style="width:260px; height:320px; margin:0 auto; border:2px dashed rgba(255,255,255,0.4); border-radius:24px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <!-- Esquinas reforzadas en terracota -->
+              <div style="position:absolute; top:-2px; left:-2px; width:24px; height:24px; border-top:4px solid var(--primary); border-left:4px solid var(--primary); border-top-left-radius:12px;"></div>
+              <div style="position:absolute; top:-2px; right:-2px; width:24px; height:24px; border-top:4px solid var(--primary); border-right:4px solid var(--primary); border-top-right-radius:12px;"></div>
+              <div style="position:absolute; bottom:-2px; left:-2px; width:24px; height:24px; border-bottom:4px solid var(--primary); border-left:4px solid var(--primary); border-bottom-left-radius:12px;"></div>
+              <div style="position:absolute; bottom:-2px; right:-2px; width:24px; height:24px; border-bottom:4px solid var(--primary); border-right:4px solid var(--primary); border-bottom-right-radius:12px;"></div>
+
+              <ion-icon name="scan-outline" style="font-size:48px; color:var(--primary); opacity:0.8; margin-bottom:12px;"></ion-icon>
+              <div style="font-size:13px; font-weight:600; text-align:center; padding:0 16px; opacity:0.9;">Apunta a tus alimentos o etiquetas de fecha</div>
+            </div>
+
+            <!-- Controles Inferiores de Obturación -->
+            <div style="display:flex; justify-content:space-around; align-items:center;">
+              <div style="width:48px; height:48px; border-radius:24px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:22px;">
+                <ion-icon name="images-outline"></ion-icon>
+              </div>
+              <div style="width:76px; height:76px; border-radius:38px; border:4px solid #fff; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <div style="width:60px; height:60px; border-radius:30px; background:var(--primary);"></div>
+              </div>
+              <div style="width:48px; height:48px; border-radius:24px; background:rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:22px;">
+                <ion-icon name="help-circle-outline"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 7: REVISAR DETECCIÓN (SCAN RESULT) -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="checkmark-done-outline"></ion-icon> 07. Revisar Detección</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content" style="padding-bottom:30px;">
+            <div class="app-header">
+              <div>
+                <h1>Alimentos Detectados</h1>
+                <p>3 reconocidos por la IA</p>
+              </div>
+              <span class="badge badge-fresh">98% Confianza</span>
+            </div>
+
+            <!-- Miniatura escaneo -->
+            <div style="height:90px; background:var(--surface-variant); border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:18px; display:flex; align-items:center; padding:12px; gap:12px;">
+              <div style="width:66px; height:66px; border-radius:10px; background:#D6C4B6; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size:24px;">
+                <ion-icon name="image-outline"></ion-icon>
+              </div>
+              <div>
+                <div style="font-size:13px; font-weight:700;">Foto analizada</div>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Revisa cantidades y fechas antes de almacenar.</div>
+              </div>
+            </div>
+
+            <!-- Lote Detectado -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <input style="font-size:15px; font-weight:700; color:var(--text-primary); border:none; background:transparent; width:70%;" value="Tomate Chonto">
+                <span class="badge badge-fresh">Verdura</span>
+              </div>
+              <div style="display:flex; gap:10px; font-size:12px; color:var(--text-secondary);">
+                <span>Cantidad: <strong>4 uds</strong></span>
+                <span>•</span>
+                <span>Vence: <strong>7 días</strong></span>
+              </div>
+            </div>
+
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <input style="font-size:15px; font-weight:700; color:var(--text-primary); border:none; background:transparent; width:70%;" value="Cebolla Roja">
+                <span class="badge badge-fresh">Verdura</span>
+              </div>
+              <div style="display:flex; gap:10px; font-size:12px; color:var(--text-secondary);">
+                <span>Cantidad: <strong>2 uds</strong></span>
+                <span>•</span>
+                <span>Vence: <strong>10 días</strong></span>
+              </div>
+            </div>
+
+            <!-- Item con Smart Merge -->
+            <div style="background:var(--primary-container); border:1px solid #F5D6C8; border-radius:var(--radius-lg); padding:14px; margin-bottom:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <input style="font-size:15px; font-weight:700; color:var(--text-primary); border:none; background:transparent; width:70%;" value="Leche Entera">
+                <span class="badge" style="background:#fff; color:var(--primary); font-weight:700;">Lácteo</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">
+                Ya tienes 1 Litro en despensa. ¿Sumar este litro nuevo?
+              </div>
+              <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--primary); cursor:pointer;">
+                <input type="checkbox" checked style="accent-color:var(--primary);"> Sumar al existente (Smart Merge)
+              </label>
+            </div>
+
+            <button class="btn-primary" style="margin-bottom:10px;">Confirmar y Guardar en Despensa</button>
+            <button class="btn-secondary" style="background:transparent; color:var(--text-secondary);">Descartar Escaneo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANTALLA 8: LISTA DE COMPRAS -->
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title"><ion-icon name="cart-outline"></ion-icon> 08. Lista de Compras</span>
+          <span class="artboard-badge">390 × 844 px</span>
+        </div>
+        <div class="mobile-frame">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="notch-island"></div>
+            <div style="display:flex; gap:4px; align-items:center;">
+              <ion-icon name="cellular"></ion-icon>
+              <ion-icon name="wifi"></ion-icon>
+              <ion-icon name="battery-full"></ion-icon>
+            </div>
+          </div>
+
+          <div class="screen-content">
+            <div class="app-header">
+              <div>
+                <h1>Lista de Compras</h1>
+                <p>4 artículos pendientes</p>
+              </div>
+              <button style="background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:var(--radius-pill); font-size:11px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:4px;">
+                <ion-icon name="download-outline"></ion-icon> Desde Despensa
+              </button>
+            </div>
+
+            <!-- Campo rápido de adición -->
+            <div class="search-container">
+              <input class="search-input" placeholder="Escribe un artículo para comprar...">
+              <ion-icon name="add-circle" style="color:var(--primary); font-size:24px; cursor:pointer;"></ion-icon>
+            </div>
+
+            <!-- Pendientes -->
+            <h2 style="font-size:15px; font-weight:800; margin-bottom:10px;">Pendientes por Comprar (4)</h2>
+            
+            <div class="ingredient-card">
+              <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
+              <div class="ingredient-info">
+                <div class="ingredient-name">Albahaca fresca</div>
+                <div class="ingredient-qty">1 ramo • Para Pasta Pomodoro</div>
+              </div>
+              <ion-icon name="ellipsis-vertical" style="color:var(--text-muted);"></ion-icon>
+            </div>
+
+            <div class="ingredient-card">
+              <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
+              <div class="ingredient-info">
+                <div class="ingredient-name">Huevos campesinos</div>
+                <div class="ingredient-qty">12 unidades • Agotado en despensa</div>
+              </div>
+              <ion-icon name="ellipsis-vertical" style="color:var(--text-muted);"></ion-icon>
+            </div>
+
+            <div class="ingredient-card">
+              <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
+              <div class="ingredient-info">
+                <div class="ingredient-name">Yogur Griego Natural</div>
+                <div class="ingredient-qty">500 g • Lácteo</div>
+              </div>
+              <ion-icon name="ellipsis-vertical" style="color:var(--text-muted);"></ion-icon>
+            </div>
+
+            <div class="ingredient-card">
+              <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
+              <div class="ingredient-info">
+                <div class="ingredient-name">Aceite de Oliva Extra Virgen</div>
+                <div class="ingredient-qty">1 botella • Despensa</div>
+              </div>
+              <ion-icon name="ellipsis-vertical" style="color:var(--text-muted);"></ion-icon>
+            </div>
+
+            <!-- Comprados -->
+            <h2 style="font-size:15px; font-weight:800; margin:20px 0 10px; color:var(--text-secondary);">Comprados (2)</h2>
+            <div class="ingredient-card" style="opacity:0.6; background:var(--surface-variant);">
+              <input type="checkbox" checked style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
+              <div class="ingredient-info">
+                <div class="ingredient-name" style="text-decoration:line-through;">Pan Tajado Integral</div>
+                <div class="ingredient-qty">1 paquete</div>
+              </div>
+            </div>
+
+            <button class="btn-primary" style="margin-top:14px;">
+              <ion-icon name="arrow-up-circle-outline" style="font-size:20px;"></ion-icon> Mover 2 Comprados a Despensa
+            </button>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <nav class="bottom-nav">
+            <div class="nav-item">
+              <ion-icon name="home-outline"></ion-icon>
+              <span>Inicio</span>
+            </div>
+            <div class="nav-item">
+              <ion-icon name="basket-outline"></ion-icon>
+              <span>Despensa</span>
+            </div>
+            <div class="nav-fab"><ion-icon name="camera"></ion-icon></div>
+            <div class="nav-item">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <span>Recetas</span>
+            </div>
+            <div class="nav-item active" style="position:relative;">
+              <div class="nav-active-pill"><ion-icon name="cart"></ion-icon></div>
+              <span class="nav-badge">4</span>
+              <span>Compras</span>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- MODO 2: SIMULADOR MÓVIL INTERACTIVO                                   -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="simulator-container" id="simulatorWorkspace">
+      <div class="screen-artboard">
+        <div class="artboard-header">
+          <span class="artboard-title" id="simTitle"><ion-icon name="phone-portrait-outline"></ion-icon> Simulador en Vivo</span>
+          <span class="artboard-badge">Toca la barra inferior para navegar</span>
+        </div>
+        
+        <div class="mobile-frame" id="simDeviceFrame">
+          <!-- El contenido de la vista activa se inserta dinámicamente aquí -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Controlador de Modos
+    function setMode(mode) {
+      const grid = document.getElementById('figmaCanvasGrid');
+      const sim = document.getElementById('simulatorWorkspace');
+      const btnGrid = document.getElementById('btnGridMode');
+      const btnSim = document.getElementById('btnSimMode');
+
+      if (mode === 'grid') {
+        grid.style.display = 'grid';
+        sim.classList.remove('active');
+        btnGrid.classList.add('active');
+        btnSim.classList.remove('active');
+      } else {
+        grid.style.display = 'none';
+        sim.classList.add('active');
+        btnSim.classList.add('active');
+        btnGrid.classList.remove('active');
+        loadSimScreen(1); // Cargar Dashboard en el simulador
+      }
+    }
+
+    // Navegación interactiva en el simulador
+    function loadSimScreen(index) {
+      const frames = document.querySelectorAll('#figmaCanvasGrid .mobile-frame');
+      if (frames[index]) {
+        const simFrame = document.getElementById('simDeviceFrame');
+        simFrame.innerHTML = frames[index].innerHTML;
+
+        // Reconectar eventos a la barra inferior del simulador
+        const navItems = simFrame.querySelectorAll('.nav-item');
+        if (navItems.length >= 4) {
+          navItems[0].onclick = () => loadSimScreen(1); // Inicio
+          navItems[1].onclick = () => loadSimScreen(2); // Despensa
+          navItems[2].onclick = () => loadSimScreen(3); // Recetas
+          navItems[3].onclick = () => loadSimScreen(7); // Compras
+        }
+        const fab = simFrame.querySelector('.nav-fab');
+        if (fab) {
+          fab.onclick = () => loadSimScreen(5); // Escanear
+        }
+      }
+    }
+  </script>
+</body>
+</html>
